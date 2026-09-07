@@ -1,5 +1,9 @@
 # Paket: Präsenzbasierte Beleuchtung
 #
+# ACHTUNG – noch nicht produktiv nutzbar: Die Entity-IDs sind Platzhalter, die
+# Hardware ist noch nicht beschafft. Diese Datei hält die geplante Logik fest
+# (siehe docs/PLANUNG.md).
+#
 # Idee: Licht geht bei Bewegung an, aber nur wenn es dunkel genug ist
 # (Sonnenstand als einfacher Näherungswert, ersetzbar durch einen
 # Helligkeitssensor), und schaltet sich nach Bewegungsende wieder aus.

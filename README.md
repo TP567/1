@@ -1,60 +1,68 @@
-# Smarthome-Konfiguration (Home Assistant)
+# Smarthome (Home Assistant)
 
-Dieses Repo enthält die versionierte Home-Assistant-Konfiguration für mein
-Smarthome. Ziel: Automationen als Code pflegen, neue Geräte/Szenen sauber
-einrichten und die Anlage über die Zeit hinweg schrittweise optimieren
-(Energieverbrauch, Komfort, Sicherheit).
+Planung und Konfiguration für mein Smarthome. Ziel: Automationen als Code
+pflegen, Geräte und Szenen sauber einrichten und die Anlage über die Zeit
+schrittweise optimieren.
 
-## Struktur
+## Status
+
+**Phase: Planung.** Die Wohnung wird gerade umgebaut (Miete, Elektrik teilweise
+erneuert, Wände bereits geschlossen), eingezogen ist noch niemand und Home
+Assistant läuft noch nicht. Der Schwerpunkt liegt deshalb aktuell auf den
+Dokumenten unter `docs/`, nicht auf dem YAML-Code – der Code ist ein Gerüst mit
+Platzhalter-Entities und wird scharf geschaltet, sobald die Geräte da sind.
+
+Einstiegspunkte:
+
+| Datei | Inhalt |
+|---|---|
+| [`docs/PLANUNG.md`](docs/PLANUNG.md) | Technologieentscheidung und Geräteplan je Gewerk (Licht, Beschattung, Sicherheit, Heizung) |
+| [`docs/BESTANDSAUFNAHME.md`](docs/BESTANDSAUFNAHME.md) | Checkliste: was in der Wohnung geprüft werden muss, bevor gekauft wird |
+| [`docs/OPTIMIERUNGEN.md`](docs/OPTIMIERUNGEN.md) | Roadmap und laufendes Backlog |
+
+## Struktur der Konfiguration
 
 ```
-configuration.yaml   Basiskonfiguration, lädt alles andere per include
-secrets.yaml.example Vorlage für secrets.yaml (Standort, Namen, Keys – niemals committen)
-automations.yaml      UI-verwaltete Automationen (leer, siehe packages/ für Code-Automationen)
-scripts.yaml          Skripte/Routinen (z. B. "Gute Nacht")
+configuration.yaml    Basiskonfiguration, lädt alles andere per include
+secrets.yaml.example  Vorlage für secrets.yaml (Standort, Keys – niemals committen)
+automations.yaml      UI-verwaltete Automationen (leer; Code-Automationen liegen in packages/)
+scripts.yaml          Skripte/Routinen
 scenes.yaml           Szenen
-packages/              Ein Paket pro Themenbereich: Helper + Automationen zusammen
-  energie_optimierung.yaml     Heizungsabsenkung bei Abwesenheit, Wohlfühltemperatur bei Rückkehr
-  praesenz_beleuchtung.yaml    Bewegungsgesteuertes Licht mit Nachtabschaltung, manuell deaktivierbar
+packages/             Ein Paket pro Themenbereich: Helper + Automationen zusammen
+  energie_optimierung.yaml    Sanfte Absenkung bei langer Abwesenheit (auf Fußbodenheizung ausgelegt)
+  praesenz_beleuchtung.yaml   Bewegungsgesteuertes Licht, manuell deaktivierbar
 dashboards/
-  uebersicht.yaml         Lovelace-Dashboard (YAML-Modus) für Klima, Licht, Anwesenheit
+  uebersicht.yaml       Lovelace-Dashboard (YAML-Modus)
 ```
 
 Warum Pakete? Jedes `packages/*.yaml` bündelt Helper (`input_boolean`,
-`input_number`, ...) und die zugehörigen Automationen an einem Ort, statt sie
-über `automations.yaml`, `input_boolean.yaml` usw. zu verteilen. Neue
-Funktionsbereiche (z. B. Sicherheit, Bewässerung, Rollläden) bekommen einfach
-eine neue Datei unter `packages/`.
+`input_number`, …) und die zugehörigen Automationen an einem Ort. Neue
+Funktionsbereiche (Beschattung, Sicherheit, …) bekommen einfach eine neue Datei.
 
-## Wichtig: Platzhalter-Entity-IDs anpassen
+## Platzhalter-Entities
 
-Da noch keine konkreten Geräte hinterlegt sind, verwenden die Beispiel-Pakete
-Platzhalter wie `climate.wohnzimmer`, `light.wohnzimmer`,
-`binary_sensor.bewegung_wohnzimmer` und `zone.home`. Vor dem produktiven
-Einsatz:
+Da noch keine Geräte existieren, nutzen die Pakete Platzhalter wie
+`climate.wohnzimmer`, `light.wohnzimmer` und `binary_sensor.bewegung_wohnzimmer`.
+Vor dem produktiven Einsatz:
 
 1. In Home Assistant unter **Entwicklerwerkzeuge → Zustände** die echten
-   Entity-IDs der eigenen Geräte nachschauen.
+   Entity-IDs nachschlagen.
 2. Platzhalter in `packages/*.yaml` und `dashboards/uebersicht.yaml` ersetzen.
-3. Konfiguration validieren (**Entwicklerwerkzeuge → YAML → Konfiguration
-   prüfen**, oder `hass --script check_config`) und neu laden.
+3. Konfiguration prüfen (**Entwicklerwerkzeuge → YAML → Konfiguration prüfen**)
+   und neu laden.
 
-## Setup
+## Inbetriebnahme (später)
 
-1. `secrets.yaml.example` nach `secrets.yaml` kopieren und mit echten Werten
-   (Standort, Name) befüllen. `secrets.yaml` wird nicht eingecheckt.
-2. Repo-Inhalt in das Home-Assistant-Konfigurationsverzeichnis legen (bzw.
-   symlinken), sodass `configuration.yaml` dort liegt, wo Home Assistant sie
-   erwartet.
-3. Konfiguration prüfen und Home Assistant neu starten.
+1. `secrets.yaml.example` nach `secrets.yaml` kopieren und ausfüllen.
+   `secrets.yaml` wird nicht eingecheckt.
+2. Repo-Inhalt ins Home-Assistant-Konfigurationsverzeichnis legen bzw.
+   dorthin klonen, sodass `configuration.yaml` am erwarteten Ort liegt.
+3. Konfiguration prüfen, dann Home Assistant neu starten.
 
-## Workflow für laufende Optimierung
+## Arbeitsweise
 
-- Änderungen an Automationen/Paketen über Branches + Commits nachvollziehbar
-  machen (kein direktes Bearbeiten nur über die UI, wenn es dauerhaft sein
-  soll).
-- Vor dem Neustart immer die Konfiguration prüfen lassen.
-- Ideen, offene Optimierungen und Priorisierung stehen in
-  [`docs/OPTIMIERUNGEN.md`](docs/OPTIMIERUNGEN.md) – dort wird laufend
-  ergänzt, was als Nächstes sinnvoll ist (z. B. PV-Einbindung,
-  Strompreis-gesteuerte Lasten, weitere Räume).
+- Änderungen an Automationen laufen über dieses Repo (Commit + `git pull` auf
+  dem HA-Host), nicht nur über die UI – so bleibt alles versioniert und
+  nachvollziehbar.
+- Vor jedem Neustart die Konfiguration prüfen lassen.
+- Offene Punkte und Ideen wandern nach `docs/OPTIMIERUNGEN.md`.

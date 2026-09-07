@@ -1,10 +1,18 @@
-# Paket: Energieoptimierung
+# Paket: Energieoptimierung (Fußbodenheizung)
 #
-# Idee: Heizung automatisch absenken, wenn niemand zu Hause ist, und beim
-# Eintreffen wieder auf Wohlfühltemperatur bringen. Die Ziel-Entity
-# "climate.wohnzimmer" und die Personen-Zone "zone.home" sind Platzhalter –
-# an die eigenen Entity-IDs anpassen (Einstellungen > Geräte & Dienste,
-# bzw. Entwicklerwerkzeuge > Zustände).
+# ACHTUNG – noch nicht produktiv nutzbar: Die Entity-IDs sind Platzhalter, die
+# Hardware ist noch nicht beschafft. Diese Datei hält die geplante Logik fest,
+# bis die Einzelraumregelung tatsächlich existiert (siehe docs/PLANUNG.md).
+#
+# Warum diese Automation anders aussieht als bei Heizkörpern:
+# Eine Fußbodenheizung ist träge – der Estrich braucht Stunden, nicht Minuten.
+# Eine harte Absenkung, sobald jemand die Wohnung verlässt, spart deshalb kaum
+# Energie, sondern kühlt die Masse aus und macht das Wiederaufheizen teuer.
+# Zwei Regeln daraus:
+#   1. Nur bei LANGER Abwesenheit absenken (hier: ab 6 Stunden).
+#   2. Nur SANFT absenken (1–2 K), nicht auf Frostschutzniveau.
+# Bei mehrtägiger Abwesenheit (Urlaub) lohnt eine stärkere Absenkung – dafür
+# später ein eigener Urlaubsmodus.
 
 input_number:
   zieltemperatur_anwesend:
@@ -17,50 +25,59 @@ input_number:
     initial: 21
 
   zieltemperatur_abwesend:
-    name: "Zieltemperatur (abwesend)"
-    min: 12
+    name: "Zieltemperatur (lange abwesend)"
+    # Bewusst nur ~1,5 K unter Komforttemperatur – mehr ist bei
+    # Fußbodenheizung kontraproduktiv.
+    min: 17
     max: 22
     step: 0.5
     unit_of_measurement: "°C"
     icon: mdi:thermometer-low
-    initial: 17
+    initial: 19.5
+
+  abwesenheit_schwelle_stunden:
+    name: "Absenkung ab Abwesenheit von"
+    min: 2
+    max: 24
+    step: 1
+    unit_of_measurement: "h"
+    icon: mdi:timer-sand
+    initial: 6
 
 automation:
-  - alias: "Energie: Heizung absenken bei Abwesenheit"
+  - alias: "Energie: Sanfte Absenkung bei langer Abwesenheit"
     description: >
-      Senkt die Zieltemperatur, sobald alle bekannten Personen die
-      Heimzone verlassen haben.
+      Senkt die Zieltemperatur erst, wenn seit mehreren Stunden niemand zu
+      Hause ist. zone.home führt die Anzahl anwesender Personen, "0" heißt
+      also: Wohnung leer.
     trigger:
-      - platform: zone
-        entity_id: all
-        zone: zone.home
-        event: leave
-    condition:
-      - condition: numeric_state
+      - platform: numeric_state
         entity_id: zone.home
-        attribute: person_count
         below: 1
+        for:
+          hours: "{{ states('input_number.abwesenheit_schwelle_stunden') | int(6) }}"
     action:
       - service: climate.set_temperature
         target:
           entity_id: climate.wohnzimmer
         data:
-          temperature: "{{ states('input_number.zieltemperatur_abwesend') | float }}"
+          temperature: "{{ states('input_number.zieltemperatur_abwesend') | float(19.5) }}"
     mode: single
 
-  - alias: "Energie: Heizung hochfahren bei Rückkehr"
+  - alias: "Energie: Komforttemperatur bei Rückkehr"
     description: >
-      Stellt die Wohlfühltemperatur wieder her, sobald die erste Person
-      nach Hause kommt.
+      Fährt die Wohlfühltemperatur wieder an, sobald die erste Person zu Hause
+      ist. Wegen der Trägheit der Fußbodenheizung dauert das Aufheizen; wer das
+      Timing verbessern will, triggert später zusätzlich auf das Verlassen der
+      Arbeitsstelle statt erst auf das Eintreffen zu Hause.
     trigger:
-      - platform: zone
-        entity_id: all
-        zone: zone.home
-        event: enter
+      - platform: numeric_state
+        entity_id: zone.home
+        above: 0
     action:
       - service: climate.set_temperature
         target:
           entity_id: climate.wohnzimmer
         data:
-          temperature: "{{ states('input_number.zieltemperatur_anwesend') | float }}"
+          temperature: "{{ states('input_number.zieltemperatur_anwesend') | float(21) }}"
     mode: single
