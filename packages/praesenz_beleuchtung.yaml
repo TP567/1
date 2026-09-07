@@ -1,0 +1,61 @@
+# Paket: Präsenzbasierte Beleuchtung
+#
+# Idee: Licht geht bei Bewegung an, aber nur wenn es dunkel genug ist
+# (Sonnenstand als einfacher Näherungswert, ersetzbar durch einen
+# Helligkeitssensor), und schaltet sich nach Bewegungsende wieder aus.
+# Über input_boolean.automatik_beleuchtung lässt sich die Automatik
+# jederzeit (z. B. für Gäste oder Party) manuell deaktivieren.
+#
+# Platzhalter-Entity-IDs (an eigene Installation anpassen):
+#   binary_sensor.bewegung_wohnzimmer, light.wohnzimmer
+
+input_boolean:
+  automatik_beleuchtung:
+    name: "Beleuchtungsautomatik aktiv"
+    icon: mdi:lightbulb-auto
+
+input_number:
+  nachlaufzeit_beleuchtung:
+    name: "Nachlaufzeit Beleuchtung"
+    min: 1
+    max: 30
+    step: 1
+    unit_of_measurement: "min"
+    icon: mdi:timer-outline
+    initial: 10
+
+automation:
+  - alias: "Beleuchtung: Einschalten bei Bewegung im Dunkeln"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bewegung_wohnzimmer
+        to: "on"
+    condition:
+      - condition: state
+        entity_id: input_boolean.automatik_beleuchtung
+        state: "on"
+      - condition: sun
+        after: sunset
+        before: sunrise
+    action:
+      - service: light.turn_on
+        target:
+          entity_id: light.wohnzimmer
+    mode: single
+
+  - alias: "Beleuchtung: Ausschalten nach Bewegungsende"
+    trigger:
+      - platform: state
+        entity_id: binary_sensor.bewegung_wohnzimmer
+        to: "off"
+        for:
+          minutes: "{{ states('input_number.nachlaufzeit_beleuchtung') | int }}"
+    condition:
+      - condition: state
+        entity_id: input_boolean.automatik_beleuchtung
+        state: "on"
+    action:
+      - service: light.turn_off
+        target:
+          entity_id: light.wohnzimmer
+    mode: single

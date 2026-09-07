@@ -1,0 +1,22 @@
+gute_nacht:
+  alias: "Gute Nacht"
+  description: >
+    Beispiel-Routine: alle Lichter aus, Türen/Fenster-Status prüfen lassen
+    (Benachrichtigung nur bei offenen Kontakten) und Beleuchtungsautomatik
+    für die Nacht deaktivieren. Entity-IDs an die eigene Installation anpassen.
+  sequence:
+    - service: light.turn_off
+      target:
+        entity_id: all
+    - service: input_boolean.turn_off
+      target:
+        entity_id: input_boolean.automatik_beleuchtung
+    - if:
+        - condition: state
+          entity_id: binary_sensor.kontakt_haustuer
+          state: "on"
+      then:
+        - service: notify.notify
+          data:
+            message: "Achtung: Haustür ist noch offen."
+  mode: single

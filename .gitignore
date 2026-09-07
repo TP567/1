@@ -1,0 +1,13 @@
+# Home Assistant Laufzeitdaten (nicht versionieren)
+secrets.yaml
+.storage/
+.cloud/
+*.db
+*.db-*
+*.log
+*.log.*
+__pycache__/
+deps/
+tts/
+.HA_VERSION
+home-assistant_v2.db*

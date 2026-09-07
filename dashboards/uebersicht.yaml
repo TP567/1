@@ -1,0 +1,32 @@
+title: Übersicht
+views:
+  - title: Zuhause
+    path: zuhause
+    icon: mdi:home
+    cards:
+      - type: entities
+        title: Klima & Energieoptimierung
+        entities:
+          - entity: climate.wohnzimmer
+          - entity: input_number.zieltemperatur_anwesend
+          - entity: input_number.zieltemperatur_abwesend
+
+      - type: entities
+        title: Beleuchtung
+        entities:
+          - entity: light.wohnzimmer
+          - entity: binary_sensor.bewegung_wohnzimmer
+          - entity: input_boolean.automatik_beleuchtung
+          - entity: input_number.nachlaufzeit_beleuchtung
+
+      - type: entities
+        title: Anwesenheit
+        entities:
+          - entity: zone.home
+
+      - type: history-graph
+        title: Verlauf (24h)
+        hours_to_show: 24
+        entities:
+          - entity: climate.wohnzimmer
+          - entity: light.wohnzimmer

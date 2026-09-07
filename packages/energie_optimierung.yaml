@@ -1,0 +1,66 @@
+# Paket: Energieoptimierung
+#
+# Idee: Heizung automatisch absenken, wenn niemand zu Hause ist, und beim
+# Eintreffen wieder auf Wohlfühltemperatur bringen. Die Ziel-Entity
+# "climate.wohnzimmer" und die Personen-Zone "zone.home" sind Platzhalter –
+# an die eigenen Entity-IDs anpassen (Einstellungen > Geräte & Dienste,
+# bzw. Entwicklerwerkzeuge > Zustände).
+
+input_number:
+  zieltemperatur_anwesend:
+    name: "Zieltemperatur (anwesend)"
+    min: 15
+    max: 26
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer
+    initial: 21
+
+  zieltemperatur_abwesend:
+    name: "Zieltemperatur (abwesend)"
+    min: 12
+    max: 22
+    step: 0.5
+    unit_of_measurement: "°C"
+    icon: mdi:thermometer-low
+    initial: 17
+
+automation:
+  - alias: "Energie: Heizung absenken bei Abwesenheit"
+    description: >
+      Senkt die Zieltemperatur, sobald alle bekannten Personen die
+      Heimzone verlassen haben.
+    trigger:
+      - platform: zone
+        entity_id: all
+        zone: zone.home
+        event: leave
+    condition:
+      - condition: numeric_state
+        entity_id: zone.home
+        attribute: person_count
+        below: 1
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.wohnzimmer
+        data:
+          temperature: "{{ states('input_number.zieltemperatur_abwesend') | float }}"
+    mode: single
+
+  - alias: "Energie: Heizung hochfahren bei Rückkehr"
+    description: >
+      Stellt die Wohlfühltemperatur wieder her, sobald die erste Person
+      nach Hause kommt.
+    trigger:
+      - platform: zone
+        entity_id: all
+        zone: zone.home
+        event: enter
+    action:
+      - service: climate.set_temperature
+        target:
+          entity_id: climate.wohnzimmer
+        data:
+          temperature: "{{ states('input_number.zieltemperatur_anwesend') | float }}"
+    mode: single

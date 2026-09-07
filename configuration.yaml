@@ -1,0 +1,32 @@
+# Home Assistant Core Configuration
+# Struktur: Basiskonfiguration hier, alles Domänenspezifische liegt modular
+# unter packages/ (siehe README.md).
+
+homeassistant:
+  name: !secret home_name
+  latitude: !secret home_latitude
+  longitude: !secret home_longitude
+  elevation: !secret home_elevation
+  unit_system: metric
+  time_zone: Europe/Berlin
+  packages: !include_dir_named packages
+
+# Aktiviert die Standard-Integrationen (Wetter, Personen, Verlauf, ...)
+default_config:
+
+# UI-verwaltete Automationen/Skripte/Szenen bleiben in separaten Dateien,
+# damit sie nicht mit den Paket-Definitionen kollidieren.
+automation: !include automations.yaml
+script: !include scripts.yaml
+scene: !include scenes.yaml
+
+# Dashboard als Code (YAML-Modus), damit Änderungen versioniert werden.
+lovelace:
+  mode: yaml
+  dashboards:
+    uebersicht:
+      mode: yaml
+      title: Übersicht
+      icon: mdi:home-assistant
+      show_in_sidebar: true
+      filename: dashboards/uebersicht.yaml
