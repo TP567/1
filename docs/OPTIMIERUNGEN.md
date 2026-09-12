@@ -49,9 +49,8 @@ Geräteentscheidungen, nicht auf Code.
 - [ ] Urlaubsmodus mit stärkerer Absenkung (bei Fußbodenheizung erst ab
       mehrtägiger Abwesenheit sinnvoll).
 - [ ] Verbrauchs-Dashboard mit Langzeitstatistiken.
-- [ ] Live-Zugriff über die Home-Assistant-API einrichten, damit Änderungen
-      direkt statt über `git pull` ausgerollt werden können (setzt laufende
-      Instanz und Fernzugriff voraus).
+- [ ] Claude Code lokal mit Home Assistant verbinden – Anleitung liegt fertig in
+      `docs/CLAUDE-CODE-SETUP.md`, umsetzbar sobald HA läuft.
 - [ ] Backup-Strategie für die HA-Konfiguration.
 
 > Neue Punkte einfach ergänzen; erledigte nach "Erledigt" verschieben statt

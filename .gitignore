@@ -1,5 +1,10 @@
-# Home Assistant Laufzeitdaten (nicht versionieren)
+# Zugangsdaten (niemals versionieren)
 secrets.yaml
+.env
+# Claude-Code-MCP-Konfiguration im Projekt-Scope – kann Tokens enthalten
+.mcp.json
+
+# Home Assistant Laufzeitdaten (nicht versionieren)
 .storage/
 .cloud/
 *.db

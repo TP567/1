@@ -19,6 +19,7 @@ Einstiegspunkte:
 | [`docs/PLANUNG.md`](docs/PLANUNG.md) | Technologieentscheidung und Geräteplan je Gewerk (Licht, Beschattung, Sicherheit, Heizung) |
 | [`docs/BESTANDSAUFNAHME.md`](docs/BESTANDSAUFNAHME.md) | Checkliste: was in der Wohnung geprüft werden muss, bevor gekauft wird |
 | [`docs/OPTIMIERUNGEN.md`](docs/OPTIMIERUNGEN.md) | Roadmap und laufendes Backlog |
+| [`docs/CLAUDE-CODE-SETUP.md`](docs/CLAUDE-CODE-SETUP.md) | Claude Code mit Home Assistant verbinden (Dateizugriff, MCP, REST-API) – für nach dem Einzug |
 
 ## Struktur der Konfiguration
 
